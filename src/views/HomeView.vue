@@ -12,8 +12,7 @@
       </div>
 
       <div class="actions">
-        <Icon icon="mdi:play-outline" @click="setPlay(item)" v-if="!isPlaying" />
-        <Icon icon="mdi:pause" @click="pauseSong"  v-else />
+        <Icon @click="(isPlaying && source.current  == item.id) ? pauseSong() : setPlay(item)" :icon="(isPlaying && source.current  == item.id) ? 'mdi:pause' : 'mdi:play-outline'" />
       </div>
 
     </div>
@@ -23,14 +22,22 @@
 
 <script setup>
 import { Icon } from '@iconify/vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 let audio = null
-let isPlaying = false
+const isPlaying = ref(false)
+const source = reactive({
+  audio: null,
+  current: null
+})
 
 const songList = ref([])
 
-onMounted(async function song() {
+onMounted(() => {
+  fetchsong()
+})
+
+const fetchsong = async() => {
   try {
     const res = await fetch('https://jio-api-ten.vercel.app/api/songs/yDeAS8Eh/suggestions', { method: 'GET' })
     const data = await res.json();
@@ -40,30 +47,25 @@ onMounted(async function song() {
   } catch (error) {
     console.log(error);
   }
-  return {
-  }
-})
+}
 
 function setPlay(params) {
 
-  if (audio) {
-    audio.pause()
-    audio.currentTime = 0
+  if (source.audio) {
+    source.audio.pause()
+    source.audio.currentTime = 0
   }
 
-  audio = new Audio(params.downloadUrl[2].url);
-  audio.play();
-  isPlaying = true
+  source.current = params.id
+  source.audio = new Audio(params.downloadUrl[2].url);
+  source.audio.play();
+  isPlaying.value = true
 
-  console.log(isPlaying);
-  
 }
 
 function pauseSong() {
-  audio.pause()
-  isPlaying = false
-  console.log(isPlaying);
-  
+  source.audio.pause()
+  isPlaying.value = false
 }
 
 </script>
