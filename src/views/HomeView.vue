@@ -1,54 +1,65 @@
 <template>
-  <template v-for="item in songList" :key="item.id" >
-    <div class="songs" @click="setPlay(item)" >
-    <div class="albumPic">
-      <img :src="item.image[2].url" alt="song-cover">
+
+  <template v-for="item in songList" :key="item.id">
+    <div class="songs" >
+      <div class="albumPic">
+        <img :src="item.image[2].url" alt="song-cover">
+      </div>
+
+      <div class="details">
+        <h3>{{ item.name }} </h3>
+        <p>{{ item.artists.all[0].name }}</p>
+      </div>
+
+      <div class="actions">
+        <Icon icon="mdi:pause" @click="pauseSong" v-if="isPlaying" />
+        <Icon icon="mdi:play-outline" @click="setPlay(item)" v-else  />
+      </div>
+
     </div>
-    <div class="details">
-      <h3>{{ item.name }} </h3>
-      <p>{{item.artists.all[0].name}}</p>
-    </div>
-  </div>
   </template>
-  
+
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { Icon } from '@iconify/vue';
+import { onMounted, ref } from 'vue';
 
 let audio = null
 let isPlaying = false
 
 const songList = ref([])
-async function song() {
-  try{
-  const res = await fetch('https://jio-api-ten.vercel.app/api/songs/yDeAS8Eh/suggestions',{method:'GET'})
-  const data =await res.json();
 
-  songList.value = data.data;
-  
-  }catch(error){
+onMounted(async function song() {
+  try {
+    const res = await fetch('https://jio-api-ten.vercel.app/api/songs/yDeAS8Eh/suggestions', { method: 'GET' })
+    const data = await res.json();
+
+    songList.value = data.data;
+
+  } catch (error) {
     console.log(error);
   }
-  return{
+  return {
   }
-}
+})
 
 function setPlay(params) {
 
-  if(audio){
+  if (audio) {
     audio.pause()
   }
-  
+
   audio = new Audio(params.downloadUrl[2].url);
   audio.play();
   isPlaying = true;
 
-  audio.onended = ()=>{ isPlaying=false}
-
 }
 
-song()
+function pauseSong(){
+  audio.pause()
+}
+
 </script>
 
 <style scoped>
@@ -58,6 +69,7 @@ song()
   margin: 4px auto;
   border-radius: 12px;
   display: flex;
+  position: relative;
 }
 
 .albumPic {
@@ -70,14 +82,22 @@ song()
   display: flex;
 }
 
-img{
+img {
   object-fit: cover;
   height: 100%;
   width: 100%;
   border-radius: 12px 0 0 12px;
 }
 
-.details{
+.details {
   margin: 1.5em;
 }
+.actions{
+  right: 2em;
+  position: absolute;
+  font-size: 2rem;
+  display: flex;
+  margin: 2.5% auto;
+}
+
 </style>
