@@ -1,7 +1,7 @@
 <template>
 
   <template v-for="item in songList" :key="item.id">
-    <div class="songs" >
+    <div class="songs">
       <div class="albumPic">
         <img :src="item.image[2].url" alt="song-cover">
       </div>
@@ -12,8 +12,8 @@
       </div>
 
       <div class="actions">
-        <Icon icon="mdi:pause" @click="pauseSong" v-if="isPlaying" />
-        <Icon icon="mdi:play-outline" @click="setPlay(item)" v-else  />
+        <Icon icon="mdi:play-outline" @click="setPlay(item)" v-if="!isPlaying" />
+        <Icon icon="mdi:pause" @click="pauseSong"  v-else />
       </div>
 
     </div>
@@ -48,16 +48,22 @@ function setPlay(params) {
 
   if (audio) {
     audio.pause()
+    audio.currentTime = 0
   }
 
   audio = new Audio(params.downloadUrl[2].url);
   audio.play();
-  isPlaying = true;
+  isPlaying = true
 
+  console.log(isPlaying);
+  
 }
 
-function pauseSong(){
+function pauseSong() {
   audio.pause()
+  isPlaying = false
+  console.log(isPlaying);
+  
 }
 
 </script>
@@ -92,12 +98,12 @@ img {
 .details {
   margin: 1.5em;
 }
-.actions{
+
+.actions {
   right: 2em;
   position: absolute;
   font-size: 2rem;
   display: flex;
   margin: 2.5% auto;
 }
-
 </style>
